@@ -1,6 +1,7 @@
-// The problems inside a merged ticket, one per fix. causes.ts says why a date flips (parser or hint);
-// a report the desk read as a one-day move (desk-notes.json) is not a flip at all, so it is its own
-// problem here, not a footnote under the tenant's cause.
+// The problems inside a merged ticket, one per fix. causes.ts says why a date flips (parser or hint),
+// and every report is counted where the desk files it: by tenant (CauseTable's view). A report the
+// desk read as a one-day move (desk-notes.json) is not a flip at all; it is its own problem too, so
+// `shift` lists those reports again instead of leaving them as a footnote.
 import { causeOf, uniqueById, type Cause, type Report, type Tenant } from '#lib/kb/causes';
 
 export type Problem = Cause | 'shift' | 'unplaced';
@@ -24,8 +25,8 @@ export const PROBLEMS: Record<Problem, { name: string; fix: string }> = {
   },
 };
 
-export function problemOf(r: Report, t: Tenant | undefined, oneDayMove: readonly string[]): Problem {
-  if (oneDayMove.includes(r.id)) return 'shift';
+// Where the desk files a report: its tenant's cause.
+export function filedAs(r: Report, t: Tenant | undefined): Problem {
   return causeOf(r, t) ?? 'unplaced';
 }
 
@@ -40,6 +41,7 @@ export type ProblemGroup = {
 };
 
 // Reports merged into `ticket`, each counted once (the export repeats some), split by problem.
+// A `shift` report is also counted under the cause it is filed under.
 export function splitTicket(
   all: Report[],
   ticket: number,
@@ -50,9 +52,11 @@ export function splitTicket(
   const reports = uniqueById(merged);
   const by = new Map<Problem, Report[]>();
   for (const r of reports) {
-    const p = problemOf(r, tenantOf(r), oneDayMove);
+    const p = filedAs(r, tenantOf(r));
     by.set(p, [...(by.get(p) ?? []), r]);
   }
+  const moved = reports.filter((r) => oneDayMove.includes(r.id));
+  if (moved.length) by.set('shift', moved);
   const count = (rs: Report[], key: (r: Report) => string) =>
     rs.reduce<Record<string, number>>((n, r) => ({ ...n, [key(r)]: (n[key(r)] ?? 0) + 1 }), {});
   const groups = [...by.entries()]
@@ -73,6 +77,15 @@ export function splitTicket(
 }
 
 // How many reports intake tagged with a cause other than the one their tenant gives them.
+// The problem a report is also counted under, if it is listed twice.
+export function alsoFiled(g: ProblemGroup, tenantOf: (r: Report) => Tenant | undefined): Record<string, number> {
+  if (g.problem !== 'shift') return {};
+  return g.reports.reduce<Record<string, number>>((n, r) => {
+    const p = filedAs(r, tenantOf(r));
+    return { ...n, [p]: (n[p] ?? 0) + 1 };
+  }, {});
+}
+
 export function mistagged(g: ProblemGroup): number {
   if (g.problem !== 'parser' && g.problem !== 'hint') return 0;
   return g.reports.length - (g.taggedAs[g.problem] ?? 0);

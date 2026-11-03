@@ -1,5 +1,6 @@
 <script lang="ts">
-  import { PROBLEMS, mistagged, type Problem } from '#lib/kb/problems';
+  import { PROBLEMS, alsoFiled, mistagged, type Problem } from '#lib/kb/problems';
+  import { tenantOf } from '#lib/kb/locales';
   import { split } from '#lib/kb/ticket-split';
 
   // issues: where each problem is filed now, problem → issue URL.
@@ -28,7 +29,7 @@
     {#each s.groups as g (g.problem)}
       <tr>
         <td><code>{g.problem}</code> {PROBLEMS[g.problem].name}</td>
-        <td><strong>{g.reports.length}</strong></td>
+        <td><strong>{g.reports.length}</strong>{#each Object.entries(alsoFiled(g, tenantOf)) as [p, n] (p)}<br /><span class="tags">{n} also in <code>{p}</code></span>{/each}</td>
         <td>{g.tenants.length}</td>
         <td class="tags">{list(g.channels)}</td>
         <td class="tags">{list(g.taggedAs)}{#if mistagged(g)}<br /><span class="off">{mistagged(g)} tagged wrong</span>{/if}</td>

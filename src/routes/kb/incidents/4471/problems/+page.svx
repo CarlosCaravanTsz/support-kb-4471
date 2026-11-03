@@ -34,7 +34,9 @@ Do not close their tickets when the parser fix ships.
 
 <ProblemTable ticket={4471} {issues} />
 
-Counted once per report id. The ticket export pages overlap, so
+Counted once per report id, where the desk files it: by tenant, as in the [#4471](/kb/incidents/4471)
+cause table. The `shift` reports are filed under `parser` by their tenant, so they count there, and
+`shift` lists them again as their own problem. The ticket export pages overlap, so
 <ProblemCount ticket={4471} of="repeats" /> rows are repeats: <ProblemCount ticket={4471} of="rows" /> rows,
 <ProblemCount ticket={4471} of="reports" /> reports.
 
@@ -43,16 +45,17 @@ Counted once per report id. The ticket export pages overlap, so
 The cause comes from the **tenant**, not from intake's tag. Intake tags from the reporter's browser;
 the cause depends on where the tenant is and which booking form it runs (`causes.ts`, `locales.ts`).
 
-1. **`shift`** if the desk read it as a one-day move (`desk-notes.json`). The date moves by one day, it
-   does not flip, so the parser fix does not touch it.
-2. **`hint`** if it came through the form of a day-first tenant on `booking-v3`. That form prints
+1. **`hint`** if it came through the form of a day-first tenant on `booking-v3`. That form prints
    `MM/DD/YYYY` under the date field, people type what it says, and the form reads the date day first.
-3. **`parser`** for every other report from a day-first tenant: the shared parser reads the date month first.
+2. **`parser`** for every other report from a day-first tenant: the shared parser reads the date month first.
+3. **`shift`**, as well, if the desk read it as a one-day move (`desk-notes.json`). The date moves by
+   one day, it does not flip, so the parser fix does not touch it.
 
 ### `parser`: <ProblemCount ticket={4471} of="parser" /> reports
 
 The bug #4471 names. Day-first tenants on every channel; on `booking-v2` forms too, whose hint is
-`DD/MM/YYYY`. The queued parser fix is for these.
+`DD/MM/YYYY`. The queued parser fix is for these. The count includes the `shift` reports, which the
+desk files here by tenant.
 
 ### `hint`: <ProblemCount ticket={4471} of="hint" /> reports
 
@@ -65,7 +68,8 @@ the date before the parser sees it. Intake tagged many of them `parser` and many
 ### `shift`: <ProblemCount ticket={4471} of="shift" /> reports
 
 The day moves by one, or two people in two time zones see two different days for one meeting.
-That is a time-zone bug, not a month flip. Before this page they were footnoted under `parser`.
+That is a time-zone bug, not a month flip. They stay counted under `parser`, where the desk files
+them; before this page they were only a footnote there.
 
 <ProblemReports ticket={4471} problem="shift" />
 
