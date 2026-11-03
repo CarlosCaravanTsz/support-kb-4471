@@ -4,7 +4,7 @@ title: '#4471 · three problems, not one'
 owner: Carlos Caravantes Reynoso
 status: closed
 reviewed: 2026-11-03
-signature: Carlos Caravantes Reynoso
+signature: v1.eyJzdWIiOiIxMzU2IiwiYXVkIjoiY2hhbGxlbmdlOndoYXQtaXQtc2hvd3MiLCJpYXQiOjE3OTM2ODkxOTUsImV4cCI6MTc5Mzc3NTU5NX0.JLsorX_kRY4qF2x9ah_Q3d-79dauEmN6OW_bnts9jOU
 ---
 
 <script>
@@ -23,7 +23,8 @@ signature: Carlos Caravantes Reynoso
 
 [#4471](/kb/incidents/4471) says one issue with one fix queued. The reports in it show
 <ProblemCount ticket={4471} of="problems" /> problems, and the queued parser fix closes only one of them.
-Each problem had its own ticket, with its count. All three are closed now that the work on #4471 is done.
+Each problem had its own ticket, with its count. All three are closed: engineering closed #4471 on 5 October,
+`parser` fixed (`fix(dates): parse dd/mm for eu locales`), `hint` won't fix (booking-v3 form retired).
 
 <Callout kind="warn">
 Not one issue. The parser fix does not close the <code>hint</code> or <code>shift</code> reports.
