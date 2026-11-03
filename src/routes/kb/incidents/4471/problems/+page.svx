@@ -2,7 +2,7 @@
 layout: runbook
 title: '#4471 · three problems, not one'
 owner: Carlos Caravantes Reynoso
-status: open
+status: closed
 reviewed: 2026-11-03
 signature: Carlos Caravantes Reynoso
 ---
@@ -23,7 +23,7 @@ signature: Carlos Caravantes Reynoso
 
 [#4471](/kb/incidents/4471) says one issue with one fix queued. The reports in it show
 <ProblemCount ticket={4471} of="problems" /> problems, and the queued parser fix closes only one of them.
-Each problem now has its own ticket, with its count.
+Each problem had its own ticket, with its count. All three are closed now that the work on #4471 is done.
 
 <Callout kind="warn">
 Not one issue. The parser fix does not close the <code>hint</code> or <code>shift</code> reports.
