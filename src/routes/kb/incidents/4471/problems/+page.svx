@@ -1,0 +1,80 @@
+---
+layout: runbook
+title: '#4471 · three problems, not one'
+owner: Carlos Caravantes Reynoso
+status: open
+reviewed: 2026-11-03
+signature: Carlos Caravantes Reynoso
+---
+
+<script>
+  import ProblemTable from '#lib/kb/ProblemTable.svelte';
+  import ProblemCount from '#lib/kb/ProblemCount.svelte';
+  import ProblemReports from '#lib/kb/ProblemReports.svelte';
+  import Callout from '#lib/kb/Callout.svelte';
+  import RenderStamp from '#lib/kb/RenderStamp.svelte';
+
+  const issues = {
+    parser: 'https://github.com/CarlosCaravanTsz/support-kb-4471/issues/1',
+    hint: 'https://github.com/CarlosCaravanTsz/support-kb-4471/issues/2',
+    shift: 'https://github.com/CarlosCaravanTsz/support-kb-4471/issues/3',
+  };
+</script>
+
+[#4471](/kb/incidents/4471) says one issue with one fix queued. The reports in it show
+<ProblemCount ticket={4471} of="problems" /> problems, and the queued parser fix closes only one of them.
+Each problem now has its own ticket, with its count.
+
+<Callout kind="warn">
+Not one issue. The parser fix does not close the <code>hint</code> or <code>shift</code> reports.
+Do not close their tickets when the parser fix ships.
+</Callout>
+
+## The split
+
+<ProblemTable ticket={4471} {issues} />
+
+Counted once per report id. The ticket export pages overlap, so
+<ProblemCount ticket={4471} of="repeats" /> rows are repeats: <ProblemCount ticket={4471} of="rows" /> rows,
+<ProblemCount ticket={4471} of="reports" /> reports.
+
+## How each report is placed
+
+The cause comes from the **tenant**, not from intake's tag. Intake tags from the reporter's browser;
+the cause depends on where the tenant is and which booking form it runs (`causes.ts`, `locales.ts`).
+
+1. **`shift`** if the desk read it as a one-day move (`desk-notes.json`). The date moves by one day, it
+   does not flip, so the parser fix does not touch it.
+2. **`hint`** if it came through the form of a day-first tenant on `booking-v3`. That form prints
+   `MM/DD/YYYY` under the date field, people type what it says, and the form reads the date day first.
+3. **`parser`** for every other report from a day-first tenant: the shared parser reads the date month first.
+
+### `parser`: <ProblemCount ticket={4471} of="parser" /> reports
+
+The bug #4471 names. Day-first tenants on every channel; on `booking-v2` forms too, whose hint is
+`DD/MM/YYYY`. The queued parser fix is for these.
+
+### `hint`: <ProblemCount ticket={4471} of="hint" /> reports
+
+Only form bookings at the `booking-v3` tenants. The parser fix does not reach them: the form reads
+the date before the parser sees it. Intake tagged many of them `parser` and many `parser` reports
+`hint`, because it went by the browser. The table counts how many it got wrong.
+
+<ProblemReports ticket={4471} problem="hint" />
+
+### `shift`: <ProblemCount ticket={4471} of="shift" /> reports
+
+The day moves by one, or two people in two time zones see two different days for one meeting.
+That is a time-zone bug, not a month flip. Before this page they were footnoted under `parser`.
+
+<ProblemReports ticket={4471} problem="shift" />
+
+## Lessons
+
+- A big ticket can be several bugs that look alike. Merging on subject (decision
+  [0001](/kb/decisions/0001-dedupe-by-subject)) puts them in one place; split them by cause before
+  you mark the ticket known.
+- Count by report id, not by export row.
+- Place a report by its tenant, not by intake's tag.
+
+<RenderStamp {signature} />
